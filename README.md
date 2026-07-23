@@ -29,7 +29,7 @@ Nasceu do meu amor por sudokus e por programação, e serve também como um regi
 -  Verificação de vitória
 -  Opção de jogar novamente ao final da partida
 
-## ▶ Como jogar
+##  Como jogar
 
 ```bash
 git clone https://github.com/mairasberguerand/sudoku-python.git
