@@ -1,11 +1,9 @@
-# VAMO JOGAR SUDOKUUUUUUU EBAAA
-
-# primeiro fazer o tabuleiro ne bis, vai ter q fazer tipo uma matriz tlg
-# vo ter q organizar saporra
+# IMPORTAÇÕES
 import random
 
 
-# TABULEIRO AQUI
+
+# CRIAÇÃO DO TABULEIRO
 def criar_tabuleiro():
     tabuleiro = []
 
@@ -18,42 +16,43 @@ def criar_tabuleiro():
     
     return tabuleiro
 
-
-
-# VAI MOSTRAR O TABULEIRO
 def mostrar(tabuleiro):
-    print("+-------+-------+-------+")
-    
+    print()
+    print("     A B C   D E F   G H I")
+    print("   ┌───────┬───────┬───────┐")
+
     for i in range(9):
-        print("| ", end="")
+        print(f"{i+1}  | ", end="")
 
         for j in range(9):
             if tabuleiro[i][j] == 0:
-                print(".", end=" ")
+                print("·", end=" ")
             else:
                 print(tabuleiro[i][j], end=" ")
                     
-            if (j + 1) % 3 == 0:
+            if (j + 1) % 3 == 0 and j != 8:
                 print("| ", end="")
-                    
-        print()
-        if (i + 1) % 3 == 0:
-            print("+-------+-------+-------+")
+
+        print("|")
+        if i == 2 or i == 5:
+            print("   ├───────┼───────┼───────┤")
+
+    print("   └───────┴───────┴───────┘")
 
 
 
-# VERIFICACOES
+# VALIDAÇÕES
 def pode_colocar(tabuleiro, linha, coluna, numero):
     
-    for i in range(9): # esse treco q vai ver se tem numero na linha
+    for i in range(9): # Verifica se o número já existe na linha.
         if tabuleiro[linha][i] == numero:
             return False
             
-    for i in range(9): # esse verifica na coluna
+    for i in range(9): # Verifica se o número já existe na coluna.
         if tabuleiro[i][coluna] == numero:
             return False
             
-    # dai esse é o 3x3
+    # Verifica o bloco 3x3 correspondente.
     inicio_linha = (linha // 3) * 3
     inicio_coluna = (coluna // 3) * 3
     
@@ -64,9 +63,6 @@ def pode_colocar(tabuleiro, linha, coluna, numero):
                 
     return True
 
-
-
-# O ROLE DA POSICAO VAZIA
 def encontrar_vazio(tabuleiro):
     
     for linha in range(9):
@@ -78,8 +74,7 @@ def encontrar_vazio(tabuleiro):
 
 
 
-# BACKTRACKING
-# é oq vai fazer "olhar pra tras"
+# GERAÇÃO DO SUDOKU
 def resolver(tabuleiro):
     
     posicao = encontrar_vazio(tabuleiro)
@@ -103,10 +98,6 @@ def resolver(tabuleiro):
             tabuleiro[linha][coluna] = 0
     return False
 
-
-
-# REMOVER OS NUMEROS
-# nao sei oq esse faz, mas acho q é remover ne
 def remover_numeros(tabuleiro, quantidade):
     while quantidade > 0:
 
@@ -117,9 +108,6 @@ def remover_numeros(tabuleiro, quantidade):
             tabuleiro[linha][coluna] = 0
             quantidade -= 1
 
-
-
-# CRIAR NOVA PARTIDA
 def novo_jogo(dificuldade):
     tabuleiro = criar_tabuleiro()
     resolver(tabuleiro)
@@ -153,8 +141,7 @@ def novo_jogo(dificuldade):
 
 
 
-
-# NAOPSEI
+# ENTRADA DE DADOS
 def pedir_numero(mensagem, minimo, maximo):
     while True:
         try:
@@ -168,9 +155,59 @@ def pedir_numero(mensagem, minimo, maximo):
         except ValueError:
             print("Digite apenas numeros")
 
+def escolher_dificuldade():
+    print("\nEscolha a dificuldade")
+    print("1 - Fácil")
+    print("2 - Médio")
+    print("3 - Difícil")
+
+    return pedir_numero("Opção: ", 1, 3)
+
+def ler_coordenada():
+    while True:
+        coordenada = input("Casa: ").strip().upper()
+
+        if len(coordenada) != 2:
+            print("Digite uma coordenada válida. Exemplo: A1")
+            continue
+
+        letra = coordenada[0]
+        numero = coordenada[1]
+
+        if letra < "A" or letra > "I":
+            print("A coluna deve ser uma letra entre A e I.")
+            continue
+
+        if numero < "1" or numero > "9":
+            print("A linha deve ser um número entre 1 e 9")
+            continue
+
+        coluna = ord(letra) - ord("A")
+        linha = int(numero) - 1
+
+        return linha, coluna
+
+def ler_numero():
+    while True:
+        entrada = input("Número (1-9 X para apagar): ").strip().upper()
+
+        if entrada == "X":
+            return "X"
+
+        if entrada.isdigit():
+            numero = int(entrada)
+
+            if 1 <= numero <= 9:
+                return numero
+
+        print("Digite um número entre 1 e 9, ou X.")
+
+def pausar():
+    input("\nPressione ENTER para continuar...")
 
 
-# VENCEU
+
+# JOGO
 def venceu(tabuleiro, solucao):
     for linha in range(9):
         for coluna in range(9):
@@ -178,41 +215,100 @@ def venceu(tabuleiro, solucao):
                 return False
     return True
 
+def nome_dificuldade(dificuldade):
+    if dificuldade == 1:
+        return "Fácil"
 
+    elif dificuldade == 2:
+        return "Médio"
 
-# MENU
+    else:
+        return "Difícil"
+
+def cabecalho(dificuldade):
+    print("\n====================================")
+    print("              S U D O K U")
+    print("====================================")
+    print(f"Dificuldade: {nome_dificuldade(dificuldade)}")
+    print("====================================\n")
+
+def jogar(tabuleiro, solucao, fixos, dificuldade):
+
+    while True:
+        cabecalho(dificuldade)
+        mostrar(tabuleiro)
+
+        print("\nDigite a sua jogada:")
+
+        linha, coluna = ler_coordenada()
+        numero = ler_numero()
+
+        if fixos[linha][coluna]:
+            print("⚠ Posição fixa!")
+            print("Escolha outra casa.")
+            pausar()
+            continue
+
+        if numero == "X":
+            tabuleiro[linha][coluna] = 0
+            fixos[linha][coluna] = False
+            print("✓ Número removido.")
+            pausar()
+            continue
+
+        if numero == solucao[linha][coluna]:
+            tabuleiro[linha][coluna] = numero
+            fixos[linha][coluna] = True
+            print("✓ Número correto!")
+            
+            if venceu(tabuleiro, solucao):
+                cabecalho(dificuldade)
+                mostrar(tabuleiro)
+
+                print("====================================")
+                print("        🎉 PARABÉNS! 🎉")
+                print()
+                print(f"Sudoku {nome_dificuldade(dificuldade)} concluído!")
+                print("====================================")
+                return "venceu"
+        else:
+            print("✗ Número incorreto.")
+            pausar()
+
 def menu():
     while True:
         print("\n====================================")
         print("            S U D O K U")
         print("====================================")
-        print("1 - Novo jogo")
-        print("2 - Como jogar")
-        print("3 - Sair")
+        print()
+        print("1. Novo jogo")
+        print("2. Como jogar")
+        print("3. Sair")
+        print()
         print("====================================")
 
         opcao = pedir_numero("Escolha uma opção: ", 1, 3)
 
         if opcao == 1:
-            print("\nEscolha a dificuldade")
-            print("1 - Facil")
-            print("2 - Medio")
-            print("3 - Dificil")
-            dificuldade = pedir_numero("Opcao: ", 1, 3)
+            dificuldade = escolher_dificuldade()
 
             while True:
 
                 tabuleiro, solucao, fixos = novo_jogo(dificuldade)
-                resultado = jogar(tabuleiro, solucao, fixos)
+                jogar(tabuleiro, solucao, fixos, dificuldade)
 
                 print("\n==============================")
+                print("          FIM DA PARTIDA")
+                print("====================================")
                 print("1 - Jogar novamente")
                 print("2 - Voltar ao menu")
                 print("3 - Sair")
+                print("====================================")
 
                 escolha = pedir_numero("Opcao: ", 1 ,3)
 
                 if escolha == 1:
+                    dificuldade = escolher_dificuldade()
                     continue
                 elif escolha == 2:
                     break
@@ -221,53 +317,26 @@ def menu():
 
         elif opcao == 2:
             print("\n========== COMO JOGAR ==========")
-            print("Complete o Sudoku preenchendo")
-            print("todas as casas vazias.")
+            print("O objetivo é preencher todas as casas vazias.")
             print()
-            print("Cada linha deve conter")
-            print("os números de 1 a 9.")
+            print("Regras:")
             print()
-            print("Cada coluna também.")
+            print("• Cada linha deve conter os números de 1 a 9.")
+            print("• Cada coluna deve conter os números de 1 a 9.")
+            print("• Cada bloco 3x3 também.")
             print()
-            print("Cada bloco 3x3 também.")
+            print("Coordenadas:")
+            print("A1, C5, H9...")
+            print()
+            print("Digite X para apagar um número.")
+            print()
+            print("Boa sorte!")
             input("\nPressione ENTER para voltar ao menu.")
 
         elif opcao == 3:
             print("\nByebye")
             break
 
-# JOGAR?
-def jogar(tabuleiro, solucao, fixos):
-
-    while True:
-        mostrar(tabuleiro)
-
-        print("\nDigite a sua jogada:")
-
-        linha = pedir_numero("Linha (1-9): ", 1, 9) -1
-        coluna =  pedir_numero("Coluna (1-9): ", 1, 9) -1
-        numero = pedir_numero("Número (1-9): ", 1, 9)
-
-        if fixos[linha][coluna]:
-            print("Posição fixa!")
-            print("Voce nao pode alterar essa posicao")
-
-            continue
 
 
-        if numero == solucao[linha][coluna]:
-            tabuleiro[linha][coluna] = numero
-            fixos[linha][coluna] = True
-            print("Numero correto")
-            
-            if venceu(tabuleiro, solucao):
-                mostrar(tabuleiro)
-                print("\nPARABENS")
-                return "venceu"
-        else:
-            print("Numero errado, bobao")
-
-
-
-# ACHO Q É O PROGRAMA PRINCIPAL
 menu()
